@@ -1,0 +1,425 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 13.04.2 ] */
+
+/* [wxMaxima: input   start ] */
+/* recall: e = 0.5*(x+iy) and n = -0.5(x-iy) */
+r(e,n,z):=sqrt(z^2-4*e*n);
+psi(e,n,z):=r(e,n,z)^(-1.0);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* target */
+y_0 : matrix([0.15],[0.03],[0.2]);
+/* source */
+x_0 : matrix([0.90],[0.925],[0.95]);
+center_xBox : matrix([0.9375],[0.9375],[0.9375]);
+center_xBoxParent : matrix([0.875],[0.875],[0.875]);
+e_y_0 : 0.5*(y_0[1,1]+%i*y_0[2,1]);
+e_x_0 : 0.5*(x_0[1,1]+%i*x_0[2,1]);
+e_center_xBox : 0.5*(center_xBox[1,1]+%i*center_xBox[2,1]);
+e_center_xBoxParent : 0.5*(center_xBoxParent[1,1]+%i*center_xBoxParent[2,1]);
+n_y_0 : -0.5*(y_0[1,1]-%i*y_0[2,1]);
+n_x_0 : -0.5*(x_0[1,1]-%i*x_0[2,1]);
+n_center_xBox : -0.5*(center_xBox[1,1]-%i*center_xBox[2,1]);
+n_center_xBoxParent : -0.5*(center_xBoxParent[1,1]-%i*center_xBoxParent[2,1]);
+z_y_0 : y_0[3,1];
+z_x_0 : x_0[3,1];
+z_center_xBox : center_xBox[3,1];
+z_center_xBoxParent : center_xBoxParent[3,1];
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* for far-field center at source cell center - center_xBox */
+y_0_difference_e : expand(e_y_0 - e_center_xBox);
+y_0_difference_n : expand(n_y_0 - n_center_xBox);
+y_0_difference_z : expand(z_y_0 - z_center_xBox);
+x_0_difference_e : expand(e_x_0 - e_center_xBox);
+x_0_difference_n : expand(n_x_0 - n_center_xBox);
+x_0_difference_z : expand(z_x_0 - z_center_xBox);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************** */
+/* Step 1: Far-field series with center x_c^{(c)} ***************** */
+/* **************************************************************** */
+/* n = 0, m = 0 */
+theta_0_pos_0(e,n,z):=''(psi(e,n,z));
+/* n = 1, m = -1 */
+theta_1_neg_1(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e));
+/* n = 1, m = 0 */
+theta_1_pos_0(e,n,z):=''(((-1.0)^1)*diff(psi(e,n,z),z));
+/* n = 1, m = 1 */
+theta_1_pos_1(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n));
+/* n = 2, m = -2 */
+theta_2_neg_2(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,2));
+/* n = 2, m = -1 */
+theta_2_neg_1(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e),z));
+/* n = 2, m = 0 */
+theta_2_pos_0(e,n,z):=''(((-1.0)^2)*diff(psi(e,n,z),z,2));
+/* n = 2, m = 1 */
+theta_2_pos_1(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n),z));
+/* n = 2, m = 2 */
+theta_2_pos_2(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,2));
+/* n = 3, m = -3 */
+theta_3_neg_3(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,3));
+/* n = 3, m = -2 */
+theta_3_neg_2(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e,2),z));
+/* n = 3, m = -1 */
+theta_3_neg_1(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),e),z,2));
+/* n = 3, m = 0 */
+theta_3_pos_0(e,n,z):=''(((-1.0)^3)*diff(psi(e,n,z),z,3));
+/* n = 3, m = 1 */
+theta_3_pos_1(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),n),z,2));
+/* n = 3, m = 2 */
+theta_3_pos_2(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n,2),z));
+/* n = 3, m = 3 */
+theta_3_pos_3(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,3));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* n = 0, m = 0 */
+gamma_0_pos_0(e,n,z):=''(r(e,n,z)^(2*0+1)*theta_0_pos_0(e,n,z)/((0-0)!*(0+0)!));
+/* n = 1, m = -1 */
+gamma_1_neg_1(e,n,z):=''(r(e,n,z)^(2*1+1)*theta_1_neg_1(e,n,z)/((1-(-1))!*(1+(-1))!));
+/* n = 1, m = 0 */
+gamma_1_pos_0(e,n,z):=''(r(e,n,z)^(2*1+1)*theta_1_pos_0(e,n,z)/((1-(0))!*(1+(0))!));
+/* n = 1, m = 1 */
+gamma_1_pos_1(e,n,z):=''(r(e,n,z)^(2*1+1)*theta_1_pos_1(e,n,z)/((1-(1))!*(1+(1))!));
+/* n = 2, m = -2 */
+gamma_2_neg_2(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_neg_2(e,n,z)/((2-(-2))!*(2+(-2))!));
+/* n = 2, m = -1 */
+gamma_2_neg_1(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_neg_1(e,n,z)/((2-(-1))!*(2+(-1))!));
+/* n = 2, m = 0 */
+gamma_2_pos_0(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_pos_0(e,n,z)/((2-(0))!*(2+(0))!));
+/* n = 2, m = 1 */
+gamma_2_pos_1(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_pos_1(e,n,z)/((2-(1))!*(2+(1))!));
+/* n = 2, m = 2 */
+gamma_2_pos_2(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_pos_2(e,n,z)/((2-(2))!*(2+(2))!));
+/* n = 3, m = -3 */
+gamma_3_neg_3(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_neg_3(e,n,z)/((3-(-3))!*(3+(-3))!));
+/* n = 3, m = -2 */
+gamma_3_neg_2(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_neg_2(e,n,z)/((3-(-2))!*(3+(-2))!));
+/* n = 3, m = -1 */
+gamma_3_neg_1(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_neg_1(e,n,z)/((3-(-1))!*(3+(-1))!));
+/* n = 3, m = 0 */
+gamma_3_pos_0(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_0(e,n,z)/((3-(0))!*(3+(0))!));
+/* n = 3, m = 1 */
+gamma_3_pos_1(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_1(e,n,z)/((3-(1))!*(3+(1))!));
+/* n = 3, m = 2 */
+gamma_3_pos_2(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_2(e,n,z)/((3-(2))!*(3+(2))!));
+/* n = 3, m = 3 */
+gamma_3_pos_3(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_3(e,n,z)/((3-(3))!*(3+(3))!));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* gamma_n^m(x-x_c^{(c)})*/
+gamma_0_pos_0_x : expand(gamma_0_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_1_neg_1_x : expand(gamma_1_neg_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_1_pos_0_x : expand(gamma_1_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_1_pos_1_x : expand(gamma_1_pos_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_neg_2_x : expand(gamma_2_neg_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_neg_1_x : expand(gamma_2_neg_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_pos_0_x : expand(gamma_2_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_pos_1_x : expand(gamma_2_pos_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_pos_2_x : expand(gamma_2_pos_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_neg_3_x : expand(gamma_3_neg_3(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_neg_2_x : expand(gamma_3_neg_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_neg_1_x : expand(gamma_3_neg_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_0_x : expand(gamma_3_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_1_x : expand(gamma_3_pos_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_2_x : expand(gamma_3_pos_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_3_x : expand(gamma_3_pos_3(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* far-field coefficients */
+/* gamma_n^{(m)*}(x-x_c^{(c)})*/
+gamma_0_pos_0_star_x : expand(((-1.0)^0)*gamma_0_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_1_neg_1_star_x : expand(((-1.0)^1)*gamma_1_pos_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_neg_2_star_x : expand(((-1.0)^2)*gamma_2_pos_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_neg_3_star_x : expand(((-1.0)^3)*gamma_3_pos_3(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_1_pos_1_star_x : expand(((-1.0)^1)*gamma_1_neg_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_1_pos_0_star_x : expand(((-1.0)^0)*gamma_1_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_neg_1_star_x : expand(((-1.0)^1)*gamma_2_pos_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_neg_2_star_x : expand(((-1.0)^2)*gamma_3_pos_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_pos_2_star_x : expand(((-1.0)^2)*gamma_2_neg_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_pos_1_star_x : expand(((-1.0)^1)*gamma_2_neg_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_pos_0_star_x : expand(((-1.0)^0)*gamma_2_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_neg_1_star_x : expand(((-1.0)^1)*gamma_3_pos_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_3_star_x : expand(((-1.0)^3)*gamma_3_neg_3(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_2_star_x : expand(((-1.0)^2)*gamma_3_neg_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_1_star_x : expand(((-1.0)^1)*gamma_3_neg_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_0_star_x : expand(((-1.0)^0)*gamma_3_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* theta_n^m(y-x_c^{(c)}) */
+theta_0_pos_0_y : expand(theta_0_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_1_neg_1_y : expand(theta_1_neg_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_2_neg_2_y : expand(theta_2_neg_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_3_neg_3_y : expand(theta_3_neg_3(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_1_pos_1_y : expand(theta_1_pos_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_1_pos_0_y : expand(theta_1_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_2_neg_1_y : expand(theta_2_neg_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_3_neg_2_y : expand(theta_3_neg_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_2_pos_2_y : expand(theta_2_pos_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_2_pos_1_y : expand(theta_2_pos_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_2_pos_0_y : expand(theta_2_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_3_neg_1_y : expand(theta_3_neg_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_3_pos_3_y : expand(theta_3_pos_3(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_3_pos_2_y : expand(theta_3_pos_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_3_pos_1_y : expand(theta_3_pos_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+theta_3_pos_0_y : expand(theta_3_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* far-field expansion about x_c^{(c)}  */
+s_expansion : expand(
+              gamma_0_pos_0_star_x * theta_0_pos_0_y + 
+              gamma_1_neg_1_star_x * theta_1_neg_1_y +
+              gamma_1_pos_0_star_x * theta_1_pos_0_y +
+              gamma_1_pos_1_star_x * theta_1_pos_1_y +
+              gamma_2_neg_2_star_x * theta_2_neg_2_y +
+              gamma_2_neg_1_star_x * theta_2_neg_1_y +
+              gamma_2_pos_0_star_x * theta_2_pos_0_y +
+              gamma_2_pos_1_star_x * theta_2_pos_1_y +
+              gamma_2_pos_2_star_x * theta_2_pos_2_y +
+              gamma_3_neg_3_star_x * theta_3_neg_3_y +
+              gamma_3_neg_2_star_x * theta_3_neg_2_y +
+              gamma_3_neg_1_star_x * theta_3_neg_1_y +
+              gamma_3_pos_0_star_x * theta_3_pos_0_y +
+              gamma_3_pos_1_star_x * theta_3_pos_1_y +
+              gamma_3_pos_2_star_x * theta_3_pos_2_y +
+              gamma_3_pos_3_star_x * theta_3_pos_3_y);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************** */
+/* Step 1: Far-field series with center x_c^{(p)} ***************** */
+/* **************************************************************** */
+/* for far-field center at parent source cell center - center_xBoxParent */
+y_0_differenceParent_e : expand(e_y_0 - e_center_xBoxParent);
+y_0_differenceParent_n : expand(n_y_0 - n_center_xBoxParent);
+y_0_differenceParent_z : expand(z_y_0 - z_center_xBoxParent);
+x_0_differenceParent_e : expand(e_x_0 - e_center_xBoxParent);
+x_0_differenceParent_n : expand(n_x_0 - n_center_xBoxParent);
+x_0_differenceParent_z : expand(z_x_0 - z_center_xBoxParent);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* far-field coefficients */
+/* gamma_n^{(m)*}(x-x_c^{(p)}) */
+gamma_0_pos_0_star_xParent : expand(((-1.0)^0)*gamma_0_pos_0(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_1_neg_1_star_xParent : expand(((-1.0)^1)*gamma_1_pos_1(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_1_pos_0_star_xParent : expand(((-1.0)^0)*gamma_1_pos_0(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_1_pos_1_star_xParent : expand(((-1.0)^1)*gamma_1_neg_1(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_2_neg_2_star_xParent : expand(((-1.0)^2)*gamma_2_pos_2(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_2_neg_1_star_xParent : expand(((-1.0)^1)*gamma_2_pos_1(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_2_pos_0_star_xParent : expand(((-1.0)^0)*gamma_2_pos_0(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_2_pos_1_star_xParent : expand(((-1.0)^1)*gamma_2_neg_1(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_2_pos_2_star_xParent : expand(((-1.0)^2)*gamma_2_neg_2(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_3_neg_3_star_xParent : expand(((-1.0)^3)*gamma_3_pos_3(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_3_neg_2_star_xParent : expand(((-1.0)^2)*gamma_3_pos_2(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_3_neg_1_star_xParent : expand(((-1.0)^1)*gamma_3_pos_1(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_3_pos_0_star_xParent : expand(((-1.0)^0)*gamma_3_pos_0(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_3_pos_1_star_xParent : expand(((-1.0)^1)*gamma_3_neg_1(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_3_pos_2_star_xParent : expand(((-1.0)^2)*gamma_3_neg_2(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+gamma_3_pos_3_star_xParent : expand(((-1.0)^3)*gamma_3_neg_3(x_0_differenceParent_e,x_0_differenceParent_n,x_0_differenceParent_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* theta_n^{(m)} (y-x_c^{(p)}) */
+theta_0_pos_0_y : expand(theta_0_pos_0(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_1_neg_1_y : expand(theta_1_neg_1(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_2_neg_2_y : expand(theta_2_neg_2(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_3_neg_3_y : expand(theta_3_neg_3(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_1_pos_1_y : expand(theta_1_pos_1(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_1_pos_0_y : expand(theta_1_pos_0(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_2_neg_1_y : expand(theta_2_neg_1(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_3_neg_2_y : expand(theta_3_neg_2(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_2_pos_2_y : expand(theta_2_pos_2(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_2_pos_1_y : expand(theta_2_pos_1(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_2_pos_0_y : expand(theta_2_pos_0(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_3_neg_1_y : expand(theta_3_neg_1(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_3_pos_3_y : expand(theta_3_pos_3(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_3_pos_2_y : expand(theta_3_pos_2(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_3_pos_1_y : expand(theta_3_pos_1(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+theta_3_pos_0_y : expand(theta_3_pos_0(y_0_differenceParent_e,y_0_differenceParent_n,y_0_differenceParent_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* far-field expansion about x_c^{(p)}  */
+s_expansion : expand(
+              gamma_0_pos_0_star_xParent * theta_0_pos_0_y + 
+              gamma_1_neg_1_star_xParent * theta_1_neg_1_y +
+              gamma_1_pos_0_star_xParent * theta_1_pos_0_y +
+              gamma_1_pos_1_star_xParent * theta_1_pos_1_y +
+              gamma_2_neg_2_star_xParent * theta_2_neg_2_y +
+              gamma_2_neg_1_star_xParent * theta_2_neg_1_y +
+              gamma_2_pos_0_star_xParent * theta_2_pos_0_y +
+              gamma_2_pos_1_star_xParent * theta_2_pos_1_y +
+              gamma_2_pos_2_star_xParent * theta_2_pos_2_y +
+              gamma_3_neg_3_star_xParent * theta_3_neg_3_y +
+              gamma_3_neg_2_star_xParent * theta_3_neg_2_y +
+              gamma_3_neg_1_star_xParent * theta_3_neg_1_y +
+              gamma_3_pos_0_star_xParent * theta_3_pos_0_y +
+              gamma_3_pos_1_star_xParent * theta_3_pos_1_y +
+              gamma_3_pos_2_star_xParent * theta_3_pos_2_y +
+              gamma_3_pos_3_star_xParent * theta_3_pos_3_y);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************** */
+/* Step 1: SS transform of Far-field series with center x_c^{(c)} * */
+/*         to far field series with center x_c^{(p)} ************** */
+/* **************************************************************** */
+/* for far-field center at parent source cell center - center_xBoxParent */
+x_0_differenceCenter_e : expand(e_center_xBox - e_center_xBoxParent);
+x_0_differenceCenter_n : expand(n_center_xBox - n_center_xBoxParent);
+x_0_differenceCenter_z : expand(z_center_xBox - z_center_xBoxParent);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************** */
+/* Step 1: Far-field series with center x_c^{(c)} ***************** */
+/* **************************************************************** */
+/* far-field coefficients */
+/* gamma_n^{(m)*}(x_c^{(c)}-x_c^{(p)}) */
+gamma_0_pos_0_star_diff_centers : expand(((-1.0)^0)*gamma_0_pos_0(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_1_neg_1_star_diff_centers : expand(((-1.0)^1)*gamma_1_pos_1(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_2_neg_2_star_diff_centers : expand(((-1.0)^2)*gamma_2_pos_2(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_3_neg_3_star_diff_centers : expand(((-1.0)^3)*gamma_3_pos_3(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_1_pos_1_star_diff_centers : expand(((-1.0)^1)*gamma_1_neg_1(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_1_pos_0_star_diff_centers : expand(((-1.0)^0)*gamma_1_pos_0(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_2_neg_1_star_diff_centers : expand(((-1.0)^1)*gamma_2_pos_1(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_3_neg_2_star_diff_centers : expand(((-1.0)^2)*gamma_3_pos_2(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_2_pos_2_star_diff_centers : expand(((-1.0)^2)*gamma_2_neg_2(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_2_pos_1_star_diff_centers : expand(((-1.0)^1)*gamma_2_neg_1(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_2_pos_0_star_diff_centers : expand(((-1.0)^0)*gamma_2_pos_0(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_3_neg_1_star_diff_centers : expand(((-1.0)^1)*gamma_3_pos_1(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_3_pos_3_star_diff_centers : expand(((-1.0)^3)*gamma_3_neg_3(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_3_pos_2_star_diff_centers : expand(((-1.0)^2)*gamma_3_neg_2(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_3_pos_1_star_diff_centers : expand(((-1.0)^1)*gamma_3_neg_1(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+gamma_3_pos_0_star_diff_centers : expand(((-1.0)^0)*gamma_3_pos_0(x_0_differenceCenter_e,x_0_differenceCenter_n,x_0_differenceCenter_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* gamma_n^{(m)*}(x - x_c^{(p)} using SS shift formula */
+/* gamma_n^{(m)*}(x - x_c^{(p)} */
+/*   = gamma_n^{(m)*}(x - x_c^{(c)} + x_c^{(c)} - x_c^{(p)} */
+/*   = \sum_{k=0}^{n} \sum_{l=0}^{0} \gamma_{n-k}^{(m-l)*} (x-x_c^{(c)}) \gamma_{k}^{(l)*} (x_c^{(c)} - x_c^{(p)}) */
+gamma_0_pos_0_star_SS_shift : gamma_0_pos_0_star_x * gamma_0_pos_0_star_diff_centers; 
+gamma_1_neg_1_star_SS_shift : expand(
+                              gamma_1_neg_1_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_1_neg_1_star_diff_centers); 
+gamma_2_neg_2_star_SS_shift : expand(
+                              gamma_2_neg_2_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_1_neg_1_star_x * gamma_1_neg_1_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_2_neg_2_star_diff_centers);
+gamma_3_neg_3_star_SS_shift : expand(
+                              gamma_3_neg_3_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_2_neg_2_star_x * gamma_1_neg_1_star_diff_centers +
+                              gamma_1_neg_1_star_x * gamma_2_neg_2_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_3_neg_3_star_diff_centers);
+gamma_1_pos_1_star_SS_shift : expand(
+                              gamma_1_pos_1_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_1_pos_1_star_diff_centers); 
+gamma_1_pos_0_star_SS_shift : expand(
+                              gamma_1_pos_0_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_1_pos_0_star_diff_centers);
+gamma_2_neg_1_star_SS_shift : expand(
+                              gamma_2_neg_1_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_1_pos_0_star_x * gamma_1_neg_1_star_diff_centers +
+                              gamma_1_neg_1_star_x * gamma_1_pos_0_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_2_neg_1_star_diff_centers);
+gamma_3_neg_2_star_SS_shift : expand(
+                              gamma_3_neg_2_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_2_neg_1_star_x * gamma_1_neg_1_star_diff_centers +
+                              gamma_2_neg_2_star_x * gamma_1_pos_0_star_diff_centers +
+                              gamma_1_pos_0_star_x * gamma_2_neg_2_star_diff_centers +
+                              gamma_1_neg_1_star_x * gamma_2_neg_1_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_3_neg_2_star_diff_centers);
+gamma_2_pos_2_star_SS_shift : expand(
+                              gamma_2_pos_2_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_1_pos_1_star_x * gamma_1_pos_1_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_2_pos_2_star_diff_centers);
+gamma_2_pos_1_star_SS_shift : expand(
+                              gamma_2_pos_1_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_1_pos_1_star_x * gamma_1_pos_0_star_diff_centers +
+                              gamma_1_pos_0_star_x * gamma_1_pos_1_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_2_pos_1_star_diff_centers);
+gamma_2_pos_0_star_SS_shift : expand(
+                              gamma_2_pos_0_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_1_pos_1_star_x * gamma_1_neg_1_star_diff_centers +
+                              gamma_1_pos_0_star_x * gamma_1_pos_0_star_diff_centers +
+                              gamma_1_neg_1_star_x * gamma_1_pos_1_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_2_pos_0_star_diff_centers);
+gamma_3_neg_1_star_SS_shift : expand(
+                              gamma_3_neg_1_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_2_pos_0_star_x * gamma_1_neg_1_star_diff_centers +
+                              gamma_2_neg_1_star_x * gamma_1_pos_0_star_diff_centers +
+                              gamma_2_neg_2_star_x * gamma_1_pos_1_star_diff_centers + 
+                              gamma_1_pos_1_star_x * gamma_2_neg_2_star_diff_centers +
+                              gamma_1_pos_0_star_x * gamma_2_neg_1_star_diff_centers +
+                              gamma_1_neg_1_star_x * gamma_2_pos_0_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_3_neg_1_star_diff_centers);
+gamma_3_pos_3_star_SS_shift : expand(
+                              gamma_3_pos_3_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_2_pos_2_star_x * gamma_1_pos_1_star_diff_centers +
+                              gamma_1_pos_1_star_x * gamma_2_pos_2_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_3_pos_3_star_diff_centers);
+gamma_3_pos_2_star_SS_shift : expand(
+                              gamma_3_pos_2_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_2_pos_2_star_x * gamma_1_pos_0_star_diff_centers +
+                              gamma_2_pos_1_star_x * gamma_1_pos_1_star_diff_centers +
+                              gamma_1_pos_1_star_x * gamma_2_pos_1_star_diff_centers +
+                              gamma_1_pos_0_star_x * gamma_2_pos_2_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_3_pos_2_star_diff_centers);
+gamma_3_pos_1_star_SS_shift : expand(
+                              gamma_3_pos_1_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_2_pos_2_star_x * gamma_1_neg_1_star_diff_centers +
+                              gamma_2_pos_1_star_x * gamma_1_pos_0_star_diff_centers +
+                              gamma_2_pos_0_star_x * gamma_1_pos_1_star_diff_centers + 
+                              gamma_1_pos_1_star_x * gamma_2_pos_0_star_diff_centers +
+                              gamma_1_pos_0_star_x * gamma_2_pos_1_star_diff_centers +
+                              gamma_1_neg_1_star_x * gamma_2_pos_2_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_3_pos_1_star_diff_centers);
+gamma_3_pos_0_star_SS_shift : expand(
+                              gamma_3_pos_0_star_x * gamma_0_pos_0_star_diff_centers +
+                              gamma_2_pos_1_star_x * gamma_1_neg_1_star_diff_centers +
+                              gamma_2_pos_0_star_x * gamma_1_pos_0_star_diff_centers +
+                              gamma_2_neg_1_star_x * gamma_1_pos_1_star_diff_centers + 
+                              gamma_1_pos_1_star_x * gamma_2_neg_1_star_diff_centers +
+                              gamma_1_pos_0_star_x * gamma_2_pos_0_star_diff_centers +
+                              gamma_1_neg_1_star_x * gamma_2_pos_1_star_diff_centers +
+                              gamma_0_pos_0_star_x * gamma_3_pos_0_star_diff_centers);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* translated far-field expansion about x_c^{(p)}  */
+translated_s_expansion : expand(
+              gamma_0_pos_0_star_SS_shift * theta_0_pos_0_y + 
+              gamma_1_neg_1_star_SS_shift * theta_1_neg_1_y +
+              gamma_1_pos_0_star_SS_shift * theta_1_pos_0_y +
+              gamma_1_pos_1_star_SS_shift * theta_1_pos_1_y +
+              gamma_2_neg_2_star_SS_shift * theta_2_neg_2_y +
+              gamma_2_neg_1_star_SS_shift * theta_2_neg_1_y +
+              gamma_2_pos_0_star_SS_shift * theta_2_pos_0_y +
+              gamma_2_pos_1_star_SS_shift * theta_2_pos_1_y +
+              gamma_2_pos_2_star_SS_shift * theta_2_pos_2_y +
+              gamma_3_neg_3_star_SS_shift * theta_3_neg_3_y +
+              gamma_3_neg_2_star_SS_shift * theta_3_neg_2_y +
+              gamma_3_neg_1_star_SS_shift * theta_3_neg_1_y +
+              gamma_3_pos_0_star_SS_shift * theta_3_pos_0_y +
+              gamma_3_pos_1_star_SS_shift * theta_3_pos_1_y +
+              gamma_3_pos_2_star_SS_shift * theta_3_pos_2_y +
+              gamma_3_pos_3_star_SS_shift * theta_3_pos_3_y);
+/* [wxMaxima: input   end   ] */
+
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
