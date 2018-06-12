@@ -1,0 +1,502 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 13.04.2 ] */
+
+/* [wxMaxima: input   start ] */
+/* In this code we perform the SR transformation */
+/* Recall the overall formulation                                                                                                           */
+/*   \mu_a \frac{1}{|x_b - x_a|} = \mu_a \frac{1}{|x_b - z_B + z_B - x_a|}                                                                  */
+/*                               = \mu_a \frac{1}{|(z_B - x_a) - (z_B - x_b)|                                                               */
+/*                               = \mu_a \sum_{n=0}^{\infty} \sum_{m=-n}^{n} \gamma_n^{m*} (z_B - x_b) \theta_n^m(z_B - x_a)                */
+/*                               = \mu_a \sum_{n=0}^{\infty} \sum_{m=-n}^{n} \gamma_n^{m*} (z_B - x_b)                                      */
+/*                                                                                      \theta_n^m(z_B - z_A - (x_a - z_A))                 */
+/*                               = \mu_a \sum_{n=0}^{\infty} \sum_{m=-n}^{n} \gamma_n^{m*} (z_B - x_b)                                      */
+/*                                                                  \sum_{k=0}^{\infty} \sum_{l=-k}^{k} \gamma_{k}^{l*}(x_a - z_A)          */
+/*                                                                                                         \theta_{n+k}^{m+l} (z_B - z_A)   */
+/* Here we are interested in \theta_n^m(z_B - x_a) = \theta_n^m(z_B - z_A - (x_a - z_A))                                                    */
+/*                                                 = \sum_{k=0}^{\infty} \sum_{l=-k}^{k} \gamma_{k}^{l*}(x_a - z_A)                         */
+/*                                                                                              \theta_{n+k}^{m+l} (z_B - z_A)              */
+/* Where x_a - source point                 */
+/*       x_b - target point                 */
+/*       z_A - source cell center           */
+/*       z_B - target cell center           */
+/* The function we are performing the FMM method on is psi = 1 / |x-y|                                            */
+/*                                                         = 1 / ((x_1-y_1)^2 + (x_2-y_2)^2 + (x_3-y_3)^2)^{1/2}  */
+/* We define the function with one variable psi = 1/|r| and in terms of the coordinate system e,n, and z          */
+/* where e = 0.5*(x+iy) and n = -0.5(x-iy).  That is, e = (x+y)/2, n = -(x-y)/2, and z = z                        */
+r(e,n,z):=sqrt(z^2-4*e*n);
+psi(e,n,z):=r(e,n,z)^(-1.0);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* target */
+y_0 : matrix([0.15],[0.03],[0.2]);
+e_y_0 : 0.5*(y_0[1,1]+%i*y_0[2,1]);
+n_y_0 : -0.5*(y_0[1,1]-%i*y_0[2,1]);
+z_y_0 : y_0[3,1];
+/* source */
+x_0 : matrix([0.90],[0.925],[0.95]);
+e_x_0 : 0.5*(x_0[1,1]+%i*x_0[2,1]);
+n_x_0 : -0.5*(x_0[1,1]-%i*x_0[2,1]);
+z_x_0 : x_0[3,1];
+/* source child center */
+center_xBox : matrix([0.9375],[0.9375],[0.9375]);
+e_center_xBox : 0.5*(center_xBox[1,1]+%i*center_xBox[2,1]);
+n_center_xBox : -0.5*(center_xBox[1,1]-%i*center_xBox[2,1]);
+z_center_xBox : center_xBox[3,1];
+/* target child center */
+center_yBox : matrix([0.1875],[0.0625],[0.1875]);
+e_center_yBox : 0.5*(center_yBox[1,1]+%i*center_yBox[2,1]);
+n_center_yBox : -0.5*(center_yBox[1,1]-%i*center_yBox[2,1]);
+z_center_yBox : center_yBox[3,1];
+/* source parent center */
+center_xBoxParent : matrix([0.875],[0.875],[0.875]);
+e_center_xBoxParent : 0.5*(center_xBoxParent[1,1]+%i*center_xBoxParent[2,1]);
+n_center_xBoxParent : -0.5*(center_xBoxParent[1,1]-%i*center_xBoxParent[2,1]);
+z_center_xBoxParent : center_xBoxParent[3,1];
+/* target parent center */
+center_yBoxParent : matrix([0.125],[0.125],[0.125]);
+e_center_yBoxParent : 0.5*(center_yBoxParent[1,1]+%i*center_yBoxParent[2,1]);
+n_center_yBoxParent : -0.5*(center_yBoxParent[1,1]-%i*center_yBoxParent[2,1]);
+z_center_yBoxParent : center_yBoxParent[3,1];
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* ******************************************************************************************* */
+/* ******************************************************************************************* */
+/* Step 1: Direct Calculation for Comparison************************************************** */
+/* ******************************************************************************************* */
+/* ******************************************************************************************* */
+/* Calculating the action of the source x_0 on the target y_0 through the function psi = 1/|r| */
+/* First we need the difference between x_0 and y_0 in the coordinate system e,n, and z        */ 
+x_0_minus_y_0_e : expand(e_x_0-e_y_0);
+x_0_minus_y_0_n : expand(n_x_0-n_y_0);
+x_0_minus_y_0_z : expand(z_x_0-z_y_0);
+/* Next we calculate psi = 1 / |x_0 - y_0|                                                     */
+psi_x_0_y_0 : expand(psi(x_0_minus_y_0_e,x_0_minus_y_0_n,x_0_minus_y_0_z));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************************************** */
+/* **************************************************************************************** */
+/* Step 2: We obtain the Near-Field Coefficient or Far-Field Power theta_n^m Formulas ***** */
+/* **************************************************************************************** */
+/* **************************************************************************************** */
+/* In code, Coefficients are obtained by getRCoeff and Powers are obtained by getSVector*** */
+/* n = 0, m = 0 */
+theta_0_pos_0(e,n,z):=''(psi(e,n,z));
+/* n = 1, m = -1 */
+theta_1_neg_1(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e));
+/* n = 1, m = 0 */
+theta_1_pos_0(e,n,z):=''(((-1.0)^1)*diff(psi(e,n,z),z));
+/* n = 1, m = 1 */
+theta_1_pos_1(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n));
+/* n = 2, m = -2 */
+theta_2_neg_2(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,2));
+/* n = 2, m = -1 */
+theta_2_neg_1(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e),z));
+/* n = 2, m = 0 */
+theta_2_pos_0(e,n,z):=''(((-1.0)^2)*diff(psi(e,n,z),z,2));
+/* n = 2, m = 1 */
+theta_2_pos_1(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n),z));
+/* n = 2, m = 2 */
+theta_2_pos_2(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,2));
+/* n = 3, m = -3 */
+theta_3_neg_3(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,3));
+/* n = 3, m = -2 */
+theta_3_neg_2(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e,2),z));
+/* n = 3, m = -1 */
+theta_3_neg_1(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),e),z,2));
+/* n = 3, m = 0 */
+theta_3_pos_0(e,n,z):=''(((-1.0)^3)*diff(psi(e,n,z),z,3));
+/* n = 3, m = 1 */
+theta_3_pos_1(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),n),z,2));
+/* n = 3, m = 2 */
+theta_3_pos_2(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n,2),z));
+/* n = 3, m = 3 */
+theta_3_pos_3(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,3));
+/* n = 4, m = -4 */
+theta_4_neg_4(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,4));
+/* n = 4, m = -3 */
+theta_4_neg_3(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e,3),z));
+/* n = 4, m = -2 */
+theta_4_neg_2(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),e,2),z,2));
+/* n = 4, m = -1 */
+theta_4_neg_1(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),e),z,3));
+/* n = 4, m = 0 */
+theta_4_pos_0(e,n,z):=''(((-1.0)^4)*diff(psi(e,n,z),z,4));
+/* n = 4, m = 1 */
+theta_4_pos_1(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),n),z,3));
+/* n = 4, m = 2 */
+theta_4_pos_2(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),n,2),z,2));
+/* n = 4, m = 3 */
+theta_4_pos_3(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n,3),z));
+/* n = 4, m = 4 */
+theta_4_pos_4(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,4));
+/* n = 5, m = -5 */
+theta_5_neg_5(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,5));
+/* n = 5, m = -4 */
+theta_5_neg_4(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e,4),z));
+/* n = 5, m = -3 */
+theta_5_neg_3(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),e,3),z,2));
+/* n = 5, m = -2 */
+theta_5_neg_2(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),e,2),z,3));
+/* n = 5, m = -1 */
+theta_5_neg_1(e,n,z):=''(((-1.0)^4)*diff(diff(psi(e,n,z),e),z,4));
+/* n = 5, m = 0 */
+theta_5_pos_0(e,n,z):=''(((-1.0)^5)*diff(psi(e,n,z),z,5));
+/* n = 5, m = 1 */
+theta_5_pos_1(e,n,z):=''(((-1.0)^4)*diff(diff(psi(e,n,z),n),z,4));
+/* n = 5, m = 2 */
+theta_5_pos_2(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),n,2),z,3));
+/* n = 5, m = 3 */
+theta_5_pos_3(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),n,3),z,2));
+/* n = 5, m = 4 */
+theta_5_pos_4(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n,4),z));
+/* n = 5, m = 5 */
+theta_5_pos_5(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,5));
+/* n = 6, m = -6 */
+theta_6_neg_6(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,6));
+/* n = 6, m = -5 */
+theta_6_neg_5(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e,5),z));
+/* n = 6, m = -4 */
+theta_6_neg_4(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),e,4),z,2));
+/* n = 6, m = -3 */
+theta_6_neg_3(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),e,3),z,3));
+/* n = 6, m = -2 */
+theta_6_neg_2(e,n,z):=''(((-1.0)^4)*diff(diff(psi(e,n,z),e,2),z,4));
+/* n = 6, m = -1 */
+theta_6_neg_1(e,n,z):=''(((-1.0)^5)*diff(diff(psi(e,n,z),e),z,5));
+/* n = 6, m = 0 */
+theta_6_pos_0(e,n,z):=''(((-1.0)^6)*diff(psi(e,n,z),z,6));
+/* n = 6, m = 1 */
+theta_6_pos_1(e,n,z):=''(((-1.0)^5)*diff(diff(psi(e,n,z),n),z,5));
+/* n = 6, m = 2 */
+theta_6_pos_2(e,n,z):=''(((-1.0)^4)*diff(diff(psi(e,n,z),n,2),z,4));
+/* n = 6, m = 3 */
+theta_6_pos_3(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),n,3),z,3));
+/* n = 6, m = 4 */
+theta_6_pos_4(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),n,4),z,2));
+/* n = 6, m = 5 */
+theta_6_pos_5(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n,5),z));
+/* n = 6, m = 6 */
+theta_6_pos_6(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,6));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* ******************************************************************************************* */
+/* ******************************************************************************************* */
+/* Step 3: We obtain the Near-Field Power or Far-Field Coefficient gamma_n^{m*} Formulas ***** */
+/* ******************************************************************************************* */
+/* ******************************************************************************************* */
+/* In code, Coefficients are obtained by getSCoeff and Powers are obtained by getRVector*** */
+/* Note we are only obtaining gamma_n^m below and not gamma_n^{m*}.  We do the rest of the  */
+/* formula when we evaluate the functions                                                   */
+/* In code, Coefficients are obtained by getSCoeff and Powers are obtained by getRVector*** */
+/* n = 0, m = 0 */
+gamma_0_pos_0(e,n,z):=''(r(e,n,z)^(2*0+1)*theta_0_pos_0(e,n,z)/((0-0)!*(0+0)!));
+/* n = 1, m = -1 */
+gamma_1_neg_1(e,n,z):=''(r(e,n,z)^(2*1+1)*theta_1_neg_1(e,n,z)/((1-(-1))!*(1+(-1))!));
+/* n = 1, m = 0 */
+gamma_1_pos_0(e,n,z):=''(r(e,n,z)^(2*1+1)*theta_1_pos_0(e,n,z)/((1-(0))!*(1+(0))!));
+/* n = 1, m = 1 */
+gamma_1_pos_1(e,n,z):=''(r(e,n,z)^(2*1+1)*theta_1_pos_1(e,n,z)/((1-(1))!*(1+(1))!));
+/* n = 2, m = -2 */
+gamma_2_neg_2(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_neg_2(e,n,z)/((2-(-2))!*(2+(-2))!));
+/* n = 2, m = -1 */
+gamma_2_neg_1(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_neg_1(e,n,z)/((2-(-1))!*(2+(-1))!));
+/* n = 2, m = 0 */
+gamma_2_pos_0(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_pos_0(e,n,z)/((2-(0))!*(2+(0))!));
+/* n = 2, m = 1 */
+gamma_2_pos_1(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_pos_1(e,n,z)/((2-(1))!*(2+(1))!));
+/* n = 2, m = 2 */
+gamma_2_pos_2(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_pos_2(e,n,z)/((2-(2))!*(2+(2))!));
+/* n = 3, m = -3 */
+gamma_3_neg_3(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_neg_3(e,n,z)/((3-(-3))!*(3+(-3))!));
+/* n = 3, m = -2 */
+gamma_3_neg_2(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_neg_2(e,n,z)/((3-(-2))!*(3+(-2))!));
+/* n = 3, m = -1 */
+gamma_3_neg_1(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_neg_1(e,n,z)/((3-(-1))!*(3+(-1))!));
+/* n = 3, m = 0 */
+gamma_3_pos_0(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_0(e,n,z)/((3-(0))!*(3+(0))!));
+/* n = 3, m = 1 */
+gamma_3_pos_1(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_1(e,n,z)/((3-(1))!*(3+(1))!));
+/* n = 3, m = 2 */
+gamma_3_pos_2(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_2(e,n,z)/((3-(2))!*(3+(2))!));
+/* n = 3, m = 3 */
+gamma_3_pos_3(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_3(e,n,z)/((3-(3))!*(3+(3))!));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* [wxMaxima: input   start ] */
+/* ******************************************************************************************* */
+/* ******************************************************************************************* */
+/* Step 4: We calculate the Far-Field Coefficients gamma_n^{m*} at (x_a - z_A) *************** */
+/* ******************************************************************************************* */
+/* ******************************************************************************************* */
+/* Recall                                                                                                                                   */
+/* Here we are interested in \theta_n^m(z_B - x_a) = \theta_n^m(z_B - z_A - (x_a - z_A))                                                    */
+/*                                                 = \sum_{k=0}^{\infty} \sum_{l=-k}^{k} \gamma_{k}^{l*}(x_a - z_A)                         */
+/*                                                                                              \theta_{n+k}^{m+l} (z_B - z_A)              */
+/* First we need x_a - z_A = x_0 - center_xBox */
+x_0_difference_e : expand(e_x_0 - e_center_xBox);
+x_0_difference_n : expand(n_x_0 - n_center_xBox);
+x_0_difference_z : expand(z_x_0 - z_center_xBox);
+/* Second we calculated gamma_n^m(x-x_c^{(c)}) using the formulas above */
+gamma_0_pos_0_x : expand(gamma_0_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_1_neg_1_x : expand(gamma_1_neg_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_neg_2_x : expand(gamma_2_neg_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_neg_3_x : expand(gamma_3_neg_3(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_1_pos_1_x : expand(gamma_1_pos_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_1_pos_0_x : expand(gamma_1_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_neg_1_x : expand(gamma_2_neg_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_neg_2_x : expand(gamma_3_neg_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_pos_2_x : expand(gamma_2_pos_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_pos_1_x : expand(gamma_2_pos_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_2_pos_0_x : expand(gamma_2_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_neg_1_x : expand(gamma_3_neg_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_3_x : expand(gamma_3_pos_3(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_2_x : expand(gamma_3_pos_2(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_1_x : expand(gamma_3_pos_1(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+gamma_3_pos_0_x : expand(gamma_3_pos_0(x_0_difference_e,x_0_difference_n,x_0_difference_z));
+/* Third we calculated gamma_n^m((x-x_c^{(c)})*) using the formula gamma_n^{m*} = (-1)^m gamma_n^m */
+gamma_0_pos_0_star_x : expand(((-1.0)^0)*gamma_0_pos_0_x);
+gamma_1_neg_1_star_x : expand(((-1.0)^1)*gamma_1_pos_1_x);
+gamma_2_neg_2_star_x : expand(((-1.0)^2)*gamma_2_pos_2_x);
+gamma_3_neg_3_star_x : expand(((-1.0)^3)*gamma_3_pos_3_x);
+gamma_1_pos_1_star_x : expand(((-1.0)^1)*gamma_1_neg_1_x);
+gamma_1_pos_0_star_x : expand(((-1.0)^0)*gamma_1_pos_0_x);
+gamma_2_neg_1_star_x : expand(((-1.0)^1)*gamma_2_pos_1_x);
+gamma_3_neg_2_star_x : expand(((-1.0)^2)*gamma_3_pos_2_x);
+gamma_2_pos_2_star_x : expand(((-1.0)^2)*gamma_2_neg_2_x);
+gamma_2_pos_1_star_x : expand(((-1.0)^1)*gamma_2_neg_1_x);
+gamma_2_pos_0_star_x : expand(((-1.0)^0)*gamma_2_pos_0_x);
+gamma_3_neg_1_star_x : expand(((-1.0)^1)*gamma_3_pos_1_x);
+gamma_3_pos_3_star_x : expand(((-1.0)^3)*gamma_3_neg_3_x);
+gamma_3_pos_2_star_x : expand(((-1.0)^2)*gamma_3_neg_2_x);
+gamma_3_pos_1_star_x : expand(((-1.0)^1)*gamma_3_neg_1_x);
+gamma_3_pos_0_star_x : expand(((-1.0)^0)*gamma_3_pos_0_x);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* ******************************************************************************************* */
+/* ******************************************************************************************* */
+/* Step 4: We calculate the Far-Field Powers theta_n^{m} at (z_B - z_A) ********************** */
+/* ******************************************************************************************* */
+/* ******************************************************************************************* */
+/* Recall                                                                                                                                   */
+/* Here we are interested in \theta_n^m(z_B - x_a) = \theta_n^m(z_B - z_A - (x_a - z_A))                                                    */
+/*                                                 = \sum_{k=0}^{\infty} \sum_{l=-k}^{k} \gamma_{k}^{l*}(x_a - z_A)                         */
+/*                                                                                              \theta_{n+k}^{m+l} (z_B - z_A)              */
+/* First we calculated z_B - z_A = center_yBox - center_xBox */
+differenceCenter_e : expand(e_center_yBox - e_center_xBox);
+differenceCenter_n : expand(n_center_yBox - n_center_xBox);
+differenceCenter_z : expand(z_center_yBox - z_center_xBox);
+/* Second we calculated theta_n^m(z_B - z_A)                 */
+theta_0_pos_0_center_diff : expand(theta_0_pos_0(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_1_neg_1_center_diff : expand(theta_1_neg_1(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_2_neg_2_center_diff : expand(theta_2_neg_2(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_3_neg_3_center_diff : expand(theta_3_neg_3(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_1_pos_1_center_diff : expand(theta_1_pos_1(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_1_pos_0_center_diff : expand(theta_1_pos_0(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_2_neg_1_center_diff : expand(theta_2_neg_1(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_3_neg_2_center_diff : expand(theta_3_neg_2(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_2_pos_2_center_diff : expand(theta_2_pos_2(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_2_pos_1_center_diff : expand(theta_2_pos_1(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_2_pos_0_center_diff : expand(theta_2_pos_0(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_3_neg_1_center_diff : expand(theta_3_neg_1(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_3_pos_3_center_diff : expand(theta_3_pos_3(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_3_pos_2_center_diff : expand(theta_3_pos_2(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_3_pos_1_center_diff : expand(theta_3_pos_1(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+theta_3_pos_0_center_diff : expand(theta_3_pos_0(differenceCenter_e,differenceCenter_n,differenceCenter_z));
+/* [wxMaxima: input   end   ] */
+
+
+
+/* [wxMaxima: input   start ] */
+/* ********************************************************************************************** */
+/* ********************************************************************************************** */
+/* Step 5: We calculate the SR Transformation of the Far-Field Coefficients gamma_n^{m*}(x_a-z_A) */
+/*         to the Near-Field Coefficients theta_n^{m} at (z_B - x_a) **************************** */
+/* ********************************************************************************************** */
+/* ********************************************************************************************** */
+/* Recall                                                                                                                                   */
+/* Here we are interested in \theta_n^m(z_B - x_a) = \theta_n^m(z_B - z_A - (x_a - z_A))                                                    */
+/*                                                 = \sum_{k=0}^{\infty} \sum_{l=-k}^{k} \gamma_{k}^{l*}(x_a - z_A)                         */
+/*                                                                                              \theta_{n+k}^{m+l} (z_B - z_A)              */
+theta_0_pos_0_translated : expand(
+                              gamma_0_pos_0_star_x * theta_0_pos_0_center_diff +
+                              gamma_1_neg_1_star_x * theta_1_neg_1_center_diff +
+                              gamma_1_pos_0_star_x * theta_1_pos_0_center_diff + 
+                              gamma_1_pos_1_star_x * theta_1_pos_1_center_diff +
+                              gamma_2_neg_2_star_x * theta_2_neg_2_center_diff +
+                              gamma_2_neg_1_star_x * theta_2_neg_1_center_diff +
+                              gamma_2_pos_0_star_x * theta_2_pos_0_center_diff +
+                              gamma_2_pos_1_star_x * theta_2_pos_1_center_diff +
+                              gamma_2_pos_2_star_x * theta_2_pos_2_center_diff + 
+                              gamma_3_neg_3_star_x * theta_3_neg_3_center_diff +
+                              gamma_3_neg_2_star_x * theta_3_neg_2_center_diff +
+                              gamma_3_neg_1_star_x * theta_3_neg_1_center_diff +
+                              gamma_3_pos_0_star_x * theta_3_pos_0_center_diff +
+                              gamma_3_pos_1_star_x * theta_3_pos_1_center_diff +
+                              gamma_3_pos_2_star_x * theta_3_pos_2_center_diff + 
+                              gamma_3_pos_3_star_x * theta_3_pos_3_center_diff); 
+theta_1_neg_1_translated : expand(
+                              gamma_0_pos_0_star_x * theta_1_neg_1_center_diff +
+                              gamma_1_neg_1_star_x * theta_2_neg_2_center_diff +
+                              gamma_1_pos_0_star_x * theta_2_neg_1_center_diff + 
+                              gamma_1_pos_1_star_x * theta_2_pos_0_center_diff +
+                              gamma_2_neg_2_star_x * theta_3_neg_3_center_diff +
+                              gamma_2_neg_1_star_x * theta_3_neg_2_center_diff +
+                              gamma_2_pos_0_star_x * theta_3_neg_1_center_diff +
+                              gamma_2_pos_1_star_x * theta_3_pos_0_center_diff +
+                              gamma_2_pos_2_star_x * theta_3_pos_1_center_diff); 
+
+theta_2_neg_2_translated : expand(
+                              gamma_0_pos_0_star_x * theta_2_neg_2_center_diff +
+                              gamma_1_neg_1_star_x * theta_3_neg_3_center_diff +
+                              gamma_1_pos_0_star_x * theta_3_neg_2_center_diff + 
+                              gamma_1_pos_1_star_x * theta_3_neg_1_center_diff); 
+
+theta_3_neg_3_translated : expand(
+                              gamma_0_pos_0_star_x * theta_3_neg_3_center_diff); 
+
+theta_1_pos_1_translated : expand(
+                              gamma_0_pos_0_star_x * theta_1_pos_1_center_diff +
+                              gamma_1_neg_1_star_x * theta_2_pos_0_center_diff +
+                              gamma_1_pos_0_star_x * theta_2_pos_1_center_diff + 
+                              gamma_1_pos_1_star_x * theta_2_pos_2_center_diff +
+                              gamma_2_neg_2_star_x * theta_3_neg_1_center_diff +
+                              gamma_2_neg_1_star_x * theta_3_pos_0_center_diff +
+                              gamma_2_pos_0_star_x * theta_3_pos_1_center_diff +
+                              gamma_2_pos_1_star_x * theta_3_pos_2_center_diff +
+                              gamma_2_pos_2_star_x * theta_3_pos_3_center_diff); 
+
+theta_1_pos_0_translated : expand(
+                              gamma_0_pos_0_star_x * theta_1_pos_0_center_diff +
+                              gamma_1_neg_1_star_x * theta_2_neg_1_center_diff +
+                              gamma_1_pos_0_star_x * theta_2_pos_0_center_diff + 
+                              gamma_1_pos_1_star_x * theta_2_pos_1_center_diff +
+                              gamma_2_neg_2_star_x * theta_3_neg_2_center_diff +
+                              gamma_2_neg_1_star_x * theta_3_neg_1_center_diff +
+                              gamma_2_pos_0_star_x * theta_3_pos_0_center_diff +
+                              gamma_2_pos_1_star_x * theta_3_pos_1_center_diff +
+                              gamma_2_pos_2_star_x * theta_3_pos_2_center_diff); 
+
+theta_2_neg_1_translated : expand(
+                              gamma_0_pos_0_star_x * theta_2_neg_1_center_diff +
+                              gamma_1_neg_1_star_x * theta_3_neg_2_center_diff +
+                              gamma_1_pos_0_star_x * theta_3_neg_1_center_diff + 
+                              gamma_1_pos_1_star_x * theta_3_pos_0_center_diff); 
+
+theta_3_neg_2_translated : expand(
+                              gamma_0_pos_0_star_x * theta_3_neg_2_center_diff); 
+
+theta_2_pos_2_translated : expand(
+                              gamma_0_pos_0_star_x * theta_2_pos_2_center_diff +
+                              gamma_1_neg_1_star_x * theta_3_pos_1_center_diff +
+                              gamma_1_pos_0_star_x * theta_3_pos_2_center_diff + 
+                              gamma_1_pos_1_star_x * theta_3_pos_3_center_diff); 
+
+theta_2_pos_1_translated : expand(
+                              gamma_0_pos_0_star_x * theta_2_pos_1_center_diff +
+                              gamma_1_neg_1_star_x * theta_3_pos_0_center_diff +
+                              gamma_1_pos_0_star_x * theta_3_pos_1_center_diff + 
+                              gamma_1_pos_1_star_x * theta_3_pos_2_center_diff); 
+
+theta_2_pos_0_translated : expand(
+                              gamma_0_pos_0_star_x * theta_2_pos_0_center_diff +
+                              gamma_1_neg_1_star_x * theta_3_neg_1_center_diff +
+                              gamma_1_pos_0_star_x * theta_3_pos_0_center_diff + 
+                              gamma_1_pos_1_star_x * theta_3_pos_1_center_diff); 
+
+theta_3_neg_1_translated : expand(
+                              gamma_0_pos_0_star_x * theta_3_neg_1_center_diff); 
+
+theta_3_pos_3_translated : expand(
+                              gamma_0_pos_0_star_x * theta_3_pos_3_center_diff); 
+
+theta_3_pos_2_translated : expand(
+                              gamma_0_pos_0_star_x * theta_3_pos_2_center_diff); 
+
+theta_3_pos_1_translated : expand(
+                              gamma_0_pos_0_star_x * theta_3_pos_1_center_diff); 
+
+theta_3_pos_0_translated : expand(
+                              gamma_0_pos_0_star_x * theta_3_pos_0_center_diff); 
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* ********************************************************************************************** */
+/* ********************************************************************************************** */
+/* Step 6: Calculating the SR translated r-expansion centered at y_c^{(c)}  */
+/* ********************************************************************************************** */
+/* ********************************************************************************************** */
+/*   \mu_a \frac{1}{|x_b - x_a|} = \mu_a \frac{1}{|x_b - z_B + z_B - x_a|}                                                                  */
+/*                               = \mu_a \frac{1}{|(z_B - x_a) - (z_B - x_b)|                                                               */
+/*                               = \mu_a \sum_{n=0}^{\infty} \sum_{m=-n}^{n} \gamma_n^{m*} (z_B - x_b) \theta_n^m(z_B - x_a)                */
+/* First we need z_B - x_b = center_yBox - y_0  */
+y_0_difference_e : expand(e_center_yBox - e_y_0);
+y_0_difference_n : expand(n_center_yBox - n_y_0);
+y_0_difference_z : expand(z_center_yBox - z_y_0);
+/* Second we need gamma_n^{m*} (z_B - x_b) */
+/* We calculate gamma_n^m(y_0_difference) using the formulas above */
+gamma_0_pos_0_y : expand(gamma_0_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_1_neg_1_y : expand(gamma_1_neg_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_neg_2_y : expand(gamma_2_neg_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_neg_3_y : expand(gamma_3_neg_3(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_1_pos_1_y : expand(gamma_1_pos_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_1_pos_0_y : expand(gamma_1_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_neg_1_y : expand(gamma_2_neg_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_neg_2_y : expand(gamma_3_neg_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_pos_2_y : expand(gamma_2_pos_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_pos_1_y : expand(gamma_2_pos_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_pos_0_y : expand(gamma_2_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_neg_1_y : expand(gamma_3_neg_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_pos_3_y : expand(gamma_3_pos_3(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_pos_2_y : expand(gamma_3_pos_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_pos_1_y : expand(gamma_3_pos_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_pos_0_y : expand(gamma_3_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+/* Third we calculated gamma_n^m((x-x_c^{(c)})*) using the formula gamma_n^{m*} = (-1)^m gamma_n^m */
+gamma_0_pos_0_star_y : expand(((-1.0)^0)*gamma_0_pos_0_y);
+gamma_1_neg_1_star_y : expand(((-1.0)^1)*gamma_1_pos_1_y);
+gamma_2_neg_2_star_y : expand(((-1.0)^2)*gamma_2_pos_2_y);
+gamma_3_neg_3_star_y : expand(((-1.0)^3)*gamma_3_pos_3_y);
+gamma_1_pos_1_star_y : expand(((-1.0)^1)*gamma_1_neg_1_y);
+gamma_1_pos_0_star_y : expand(((-1.0)^0)*gamma_1_pos_0_y);
+gamma_2_neg_1_star_y : expand(((-1.0)^1)*gamma_2_pos_1_y);
+gamma_3_neg_2_star_y : expand(((-1.0)^2)*gamma_3_pos_2_y);
+gamma_2_pos_2_star_y : expand(((-1.0)^2)*gamma_2_neg_2_y);
+gamma_2_pos_1_star_y : expand(((-1.0)^1)*gamma_2_neg_1_y);
+gamma_2_pos_0_star_y : expand(((-1.0)^0)*gamma_2_pos_0_y);
+gamma_3_neg_1_star_y : expand(((-1.0)^1)*gamma_3_pos_1_y);
+gamma_3_pos_3_star_y : expand(((-1.0)^3)*gamma_3_neg_3_y);
+gamma_3_pos_2_star_y : expand(((-1.0)^2)*gamma_3_neg_2_y);
+gamma_3_pos_1_star_y : expand(((-1.0)^1)*gamma_3_neg_1_y);
+gamma_3_pos_0_star_y : expand(((-1.0)^0)*gamma_3_pos_0_y);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* Fourth we calculate the translated r-expansion */
+r_expansion : expand(
+              gamma_0_pos_0_star_y * theta_0_pos_0_translated + 
+              gamma_1_neg_1_star_y * theta_1_neg_1_translated +
+              gamma_1_pos_0_star_y * theta_1_pos_0_translated +
+              gamma_1_pos_1_star_y * theta_1_pos_1_translated +
+              gamma_2_neg_2_star_y * theta_2_neg_2_translated +
+              gamma_2_neg_1_star_y * theta_2_neg_1_translated +
+              gamma_2_pos_0_star_y * theta_2_pos_0_translated +
+              gamma_2_pos_1_star_y * theta_2_pos_1_translated +
+              gamma_2_pos_2_star_y * theta_2_pos_2_translated +
+              gamma_3_neg_3_star_y * theta_3_neg_3_translated +
+              gamma_3_neg_2_star_y * theta_3_neg_2_translated +
+              gamma_3_neg_1_star_y * theta_3_neg_1_translated +
+              gamma_3_pos_0_star_y * theta_3_pos_0_translated +
+              gamma_3_pos_1_star_y * theta_3_pos_1_translated +
+              gamma_3_pos_2_star_y * theta_3_pos_2_translated +
+              gamma_3_pos_3_star_y * theta_3_pos_3_translated);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
