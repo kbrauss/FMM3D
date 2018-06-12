@@ -1,0 +1,646 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 13.04.2 ] */
+
+/* [wxMaxima: input   start ] */
+/* In this code we perform the RR transformation */
+/* Recall the overall formulation                                                                                                           */
+/*   \mu_a \frac{1}{|x_b - x_a|} = \mu_a \frac{1}{|x_b - z_B + z_B - x_a|}                                                                  */
+/*                               = \mu_a \frac{1}{|(z_B - x_a) - (z_B - x_b)|                                                               */
+/*                               = \mu_a \sum_{n=0}^{\infty} \sum_{m=-n}^{n} \gamma_n^{m*} (z_B - x_b) \theta_n^m(z_B - x_a)                */
+/*                               = \mu_a \sum_{n=0}^{\infty} \sum_{m=-n}^{n} \gamma_n^{m*} (z_B - x_b)                                      */
+/*                                                                                      \theta_n^m(z_B - z_A - (x_a - z_A))                 */
+/*                               = \mu_a \sum_{n=0}^{\infty} \sum_{m=-n}^{n} \gamma_n^{m*} (z_B - x_b)                                      */
+/*                                                                  \sum_{k=0}^{\infty} \sum_{l=-k}^{k} \gamma_{k}^{l*}(x_a - z_A)          */
+/*                                                                                                         \theta_{n+k}^{m+l} (z_B - z_A)   */
+/* recall: e = 0.5*(x+iy) and n = -0.5(x-iy) */
+r(e,n,z):=sqrt(z^2-4*e*n);
+psi(e,n,z):=r(e,n,z)^(-1.0);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* target */
+y_0 : matrix([0.15],[0.03],[0.2]);
+/* source */
+x_0 : matrix([0.90],[0.925],[0.95]);
+/* centers */
+center_xBox : matrix([0.9375],[0.9375],[0.9375]);
+center_yBox : matrix([0.1875],[0.0625],[0.1875]);
+center_xBoxParent : matrix([0.875],[0.875],[0.875]);
+center_yBoxParent : matrix([0.125],[0.125],[0.125]);
+/* coordinate system e = (x+y)/2, n = -(x-y)/2, and z = z */
+e_y_0 : 0.5*(y_0[1,1]+%i*y_0[2,1]);
+e_x_0 : 0.5*(x_0[1,1]+%i*x_0[2,1]);
+e_center_xBox : 0.5*(center_xBox[1,1]+%i*center_xBox[2,1]);
+e_center_yBox : 0.5*(center_yBox[1,1]+%i*center_yBox[2,1]);
+e_center_xBoxParent : 0.5*(center_xBoxParent[1,1]+%i*center_xBoxParent[2,1]);
+e_center_yBoxParent : 0.5*(center_yBoxParent[1,1]+%i*center_yBoxParent[2,1]);
+n_y_0 : -0.5*(y_0[1,1]-%i*y_0[2,1]);
+n_x_0 : -0.5*(x_0[1,1]-%i*x_0[2,1]);
+n_center_xBox : -0.5*(center_xBox[1,1]-%i*center_xBox[2,1]);
+n_center_yBox : -0.5*(center_yBox[1,1]-%i*center_yBox[2,1]);
+n_center_xBoxParent : -0.5*(center_xBoxParent[1,1]-%i*center_xBoxParent[2,1]);
+n_center_yBoxParent : -0.5*(center_yBoxParent[1,1]-%i*center_yBoxParent[2,1]);
+z_y_0 : y_0[3,1];
+z_x_0 : x_0[3,1];
+z_center_xBox : center_xBox[3,1];
+z_center_yBox : center_yBox[3,1];
+z_center_xBoxParent : center_xBoxParent[3,1];
+z_center_yBoxParent : center_yBoxParent[3,1];
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* For near-field series with center at target cell center - center_yBox */
+x_0_minus_y_0_e : expand(e_x_0-e_y_0);
+x_0_minus_y_0_n : expand(n_x_0-n_y_0);
+x_0_minus_y_0_z : expand(z_x_0-z_y_0);
+y_0_difference_e : expand(e_y_0 - e_center_yBox);
+y_0_difference_n : expand(n_y_0 - n_center_yBox);
+y_0_difference_z : expand(z_y_0 - z_center_yBox);
+x_0_difference_e : expand(e_x_0 - e_center_yBox);
+x_0_difference_n : expand(n_x_0 - n_center_yBox);
+x_0_difference_z : expand(z_x_0 - z_center_yBox);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************** */
+/* **************************************************************** */
+/* Step 1: Direct Calculation ************************************* */
+/* **************************************************************** */
+/* **************************************************************** */
+psi_x_0_y_0 : expand(psi(x_0_minus_y_0_e,x_0_minus_y_0_n,x_0_minus_y_0_z));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************** */
+/* **************************************************************** */
+/* Step 1: Near-field series with center y_c^{(c)} ***************** */
+/* **************************************************************** */
+/* **************************************************************** */
+/* near-field coefficients - getRCoeff */
+/* n = 0, m = 0 */
+theta_0_pos_0(e,n,z):=''(psi(e,n,z));
+/* n = 1, m = -1 */
+theta_1_neg_1(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e));
+/* n = 1, m = 0 */
+theta_1_pos_0(e,n,z):=''(((-1.0)^1)*diff(psi(e,n,z),z));
+/* n = 1, m = 1 */
+theta_1_pos_1(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n));
+/* n = 2, m = -2 */
+theta_2_neg_2(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,2));
+/* n = 2, m = -1 */
+theta_2_neg_1(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e),z));
+/* n = 2, m = 0 */
+theta_2_pos_0(e,n,z):=''(((-1.0)^2)*diff(psi(e,n,z),z,2));
+/* n = 2, m = 1 */
+theta_2_pos_1(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n),z));
+/* n = 2, m = 2 */
+theta_2_pos_2(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,2));
+/* n = 3, m = -3 */
+theta_3_neg_3(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,3));
+/* n = 3, m = -2 */
+theta_3_neg_2(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e,2),z));
+/* n = 3, m = -1 */
+theta_3_neg_1(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),e),z,2));
+/* n = 3, m = 0 */
+theta_3_pos_0(e,n,z):=''(((-1.0)^3)*diff(psi(e,n,z),z,3));
+/* n = 3, m = 1 */
+theta_3_pos_1(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),n),z,2));
+/* n = 3, m = 2 */
+theta_3_pos_2(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n,2),z));
+/* n = 3, m = 3 */
+theta_3_pos_3(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,3));
+/* n = 4, m = -4 */
+theta_4_neg_4(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,4));
+/* n = 4, m = -3 */
+theta_4_neg_3(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e,3),z));
+/* n = 4, m = -2 */
+theta_4_neg_2(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),e,2),z,2));
+/* n = 4, m = -1 */
+theta_4_neg_1(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),e),z,3));
+/* n = 4, m = 0 */
+theta_4_pos_0(e,n,z):=''(((-1.0)^4)*diff(psi(e,n,z),z,4));
+/* n = 4, m = 1 */
+theta_4_pos_1(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),n),z,3));
+/* n = 4, m = 2 */
+theta_4_pos_2(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),n,2),z,2));
+/* n = 4, m = 3 */
+theta_4_pos_3(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n,3),z));
+/* n = 4, m = 4 */
+theta_4_pos_4(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,4));
+/* n = 5, m = -5 */
+theta_5_neg_5(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,5));
+/* n = 5, m = -4 */
+theta_5_neg_4(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e,4),z));
+/* n = 5, m = -3 */
+theta_5_neg_3(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),e,3),z,2));
+/* n = 5, m = -2 */
+theta_5_neg_2(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),e,2),z,3));
+/* n = 5, m = -1 */
+theta_5_neg_1(e,n,z):=''(((-1.0)^4)*diff(diff(psi(e,n,z),e),z,4));
+/* n = 5, m = 0 */
+theta_5_pos_0(e,n,z):=''(((-1.0)^5)*diff(psi(e,n,z),z,5));
+/* n = 5, m = 1 */
+theta_5_pos_1(e,n,z):=''(((-1.0)^4)*diff(diff(psi(e,n,z),n),z,4));
+/* n = 5, m = 2 */
+theta_5_pos_2(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),n,2),z,3));
+/* n = 5, m = 3 */
+theta_5_pos_3(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),n,3),z,2));
+/* n = 5, m = 4 */
+theta_5_pos_4(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n,4),z));
+/* n = 5, m = 5 */
+theta_5_pos_5(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,5));
+/* n = 6, m = -6 */
+theta_6_neg_6(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),e,6));
+/* n = 6, m = -5 */
+theta_6_neg_5(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),e,5),z));
+/* n = 6, m = -4 */
+theta_6_neg_4(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),e,4),z,2));
+/* n = 6, m = -3 */
+theta_6_neg_3(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),e,3),z,3));
+/* n = 6, m = -2 */
+theta_6_neg_2(e,n,z):=''(((-1.0)^4)*diff(diff(psi(e,n,z),e,2),z,4));
+/* n = 6, m = -1 */
+theta_6_neg_1(e,n,z):=''(((-1.0)^5)*diff(diff(psi(e,n,z),e),z,5));
+/* n = 6, m = 0 */
+theta_6_pos_0(e,n,z):=''(((-1.0)^6)*diff(psi(e,n,z),z,6));
+/* n = 6, m = 1 */
+theta_6_pos_1(e,n,z):=''(((-1.0)^5)*diff(diff(psi(e,n,z),n),z,5));
+/* n = 6, m = 2 */
+theta_6_pos_2(e,n,z):=''(((-1.0)^4)*diff(diff(psi(e,n,z),n,2),z,4));
+/* n = 6, m = 3 */
+theta_6_pos_3(e,n,z):=''(((-1.0)^3)*diff(diff(psi(e,n,z),n,3),z,3));
+/* n = 6, m = 4 */
+theta_6_pos_4(e,n,z):=''(((-1.0)^2)*diff(diff(psi(e,n,z),n,4),z,2));
+/* n = 6, m = 5 */
+theta_6_pos_5(e,n,z):=''(((-1.0)^1)*diff(diff(psi(e,n,z),n,5),z));
+/* n = 6, m = 6 */
+theta_6_pos_6(e,n,z):=''(((-1.0)^0)*diff(psi(e,n,z),n,6));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* near-field powers - getRVector */
+/* n = 0, m = 0 */
+gamma_0_pos_0(e,n,z):=''(r(e,n,z)^(2*0+1)*theta_0_pos_0(e,n,z)/((0-0)!*(0+0)!));
+/* n = 1, m = -1 */
+gamma_1_neg_1(e,n,z):=''(r(e,n,z)^(2*1+1)*theta_1_neg_1(e,n,z)/((1-(-1))!*(1+(-1))!));
+/* n = 1, m = 0 */
+gamma_1_pos_0(e,n,z):=''(r(e,n,z)^(2*1+1)*theta_1_pos_0(e,n,z)/((1-(0))!*(1+(0))!));
+/* n = 1, m = 1 */
+gamma_1_pos_1(e,n,z):=''(r(e,n,z)^(2*1+1)*theta_1_pos_1(e,n,z)/((1-(1))!*(1+(1))!));
+/* n = 2, m = -2 */
+gamma_2_neg_2(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_neg_2(e,n,z)/((2-(-2))!*(2+(-2))!));
+/* n = 2, m = -1 */
+gamma_2_neg_1(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_neg_1(e,n,z)/((2-(-1))!*(2+(-1))!));
+/* n = 2, m = 0 */
+gamma_2_pos_0(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_pos_0(e,n,z)/((2-(0))!*(2+(0))!));
+/* n = 2, m = 1 */
+gamma_2_pos_1(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_pos_1(e,n,z)/((2-(1))!*(2+(1))!));
+/* n = 2, m = 2 */
+gamma_2_pos_2(e,n,z):=''(r(e,n,z)^(2*2+1)*theta_2_pos_2(e,n,z)/((2-(2))!*(2+(2))!));
+/* n = 3, m = -3 */
+gamma_3_neg_3(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_neg_3(e,n,z)/((3-(-3))!*(3+(-3))!));
+/* n = 3, m = -2 */
+gamma_3_neg_2(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_neg_2(e,n,z)/((3-(-2))!*(3+(-2))!));
+/* n = 3, m = -1 */
+gamma_3_neg_1(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_neg_1(e,n,z)/((3-(-1))!*(3+(-1))!));
+/* n = 3, m = 0 */
+gamma_3_pos_0(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_0(e,n,z)/((3-(0))!*(3+(0))!));
+/* n = 3, m = 1 */
+gamma_3_pos_1(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_1(e,n,z)/((3-(1))!*(3+(1))!));
+/* n = 3, m = 2 */
+gamma_3_pos_2(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_2(e,n,z)/((3-(2))!*(3+(2))!));
+/* n = 3, m = 3 */
+gamma_3_pos_3(e,n,z):=''(r(e,n,z)^(2*3+1)*theta_3_pos_3(e,n,z)/((3-(3))!*(3+(3))!));
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* gamma_n^m(y-y_c^{(c)})*/
+gamma_0_pos_0_y : expand(gamma_0_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_1_neg_1_y : expand(gamma_1_neg_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_neg_2_y : expand(gamma_2_neg_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_neg_3_y : expand(gamma_3_neg_3(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_1_pos_1_y : expand(gamma_1_pos_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_1_pos_0_y : expand(gamma_1_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_neg_1_y : expand(gamma_2_neg_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_neg_2_y : expand(gamma_3_neg_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_pos_2_y : expand(gamma_2_pos_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_pos_1_y : expand(gamma_2_pos_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_2_pos_0_y : expand(gamma_2_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_neg_1_y : expand(gamma_3_neg_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_pos_3_y : expand(gamma_3_pos_3(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_pos_2_y : expand(gamma_3_pos_2(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_pos_1_y : expand(gamma_3_pos_1(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+gamma_3_pos_0_y : expand(gamma_3_pos_0(y_0_difference_e,y_0_difference_n,y_0_difference_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* far-field coefficients */
+/* gamma_n^{(m)*}(-(y-y_c^{(c)}))*/
+/* Note the negative on (y-y_c^{(c)}) */
+/* This is due to the formulation at the top where the near-field powers are \gamma_n^{m*} (z_B - x_b) */
+gamma_0_pos_0_star_y : expand(((-1.0)^0)*gamma_0_pos_0(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_1_neg_1_star_y : expand(((-1.0)^1)*gamma_1_pos_1(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_2_neg_2_star_y : expand(((-1.0)^2)*gamma_2_pos_2(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_3_neg_3_star_y : expand(((-1.0)^3)*gamma_3_pos_3(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_1_pos_1_star_y : expand(((-1.0)^1)*gamma_1_neg_1(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_1_pos_0_star_y : expand(((-1.0)^0)*gamma_1_pos_0(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_2_neg_1_star_y : expand(((-1.0)^1)*gamma_2_pos_1(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_3_neg_2_star_y : expand(((-1.0)^2)*gamma_3_pos_2(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_2_pos_2_star_y : expand(((-1.0)^2)*gamma_2_neg_2(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_2_pos_1_star_y : expand(((-1.0)^1)*gamma_2_neg_1(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_2_pos_0_star_y : expand(((-1.0)^0)*gamma_2_pos_0(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_3_neg_1_star_y : expand(((-1.0)^1)*gamma_3_pos_1(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_3_pos_3_star_y : expand(((-1.0)^3)*gamma_3_neg_3(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_3_pos_2_star_y : expand(((-1.0)^2)*gamma_3_neg_2(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_3_pos_1_star_y : expand(((-1.0)^1)*gamma_3_neg_1(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+gamma_3_pos_0_star_y : expand(((-1.0)^0)*gamma_3_pos_0(-y_0_difference_e,-y_0_difference_n,-y_0_difference_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* Calculating theta_n^m(y_c^{(c)}-x) */
+/* from the formulation at the top where the near-field coefficients are \theta_n^m(z_B - x_a) */
+/* Below we therefore use -x_0_difference_e, -x_0_difference_n, -x_0_difference_z */
+theta_0_pos_0_x_y_c_c : expand(theta_0_pos_0(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_1_neg_1_x_y_c_c : expand(theta_1_neg_1(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_2_neg_2_x_y_c_c : expand(theta_2_neg_2(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_3_neg_3_x_y_c_c : expand(theta_3_neg_3(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_1_pos_1_x_y_c_c : expand(theta_1_pos_1(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_1_pos_0_x_y_c_c : expand(theta_1_pos_0(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_2_neg_1_x_y_c_c : expand(theta_2_neg_1(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_3_neg_2_x_y_c_c : expand(theta_3_neg_2(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_2_pos_2_x_y_c_c : expand(theta_2_pos_2(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_2_pos_1_x_y_c_c : expand(theta_2_pos_1(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_2_pos_0_x_y_c_c : expand(theta_2_pos_0(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_3_neg_1_x_y_c_c : expand(theta_3_neg_1(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_3_pos_3_x_y_c_c : expand(theta_3_pos_3(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_3_pos_2_x_y_c_c : expand(theta_3_pos_2(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_3_pos_1_x_y_c_c : expand(theta_3_pos_1(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+theta_3_pos_0_x_y_c_c : expand(theta_3_pos_0(-x_0_difference_e,-x_0_difference_n,-x_0_difference_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* near-field expansion about y_c^{(c)}  */
+s_expansion : expand(
+              gamma_0_pos_0_star_y * theta_0_pos_0_x_y_c_c + 
+              gamma_1_neg_1_star_y * theta_1_neg_1_x_y_c_c +
+              gamma_1_pos_0_star_y * theta_1_pos_0_x_y_c_c +
+              gamma_1_pos_1_star_y * theta_1_pos_1_x_y_c_c +
+              gamma_2_neg_2_star_y * theta_2_neg_2_x_y_c_c +
+              gamma_2_neg_1_star_y * theta_2_neg_1_x_y_c_c +
+              gamma_2_pos_0_star_y * theta_2_pos_0_x_y_c_c +
+              gamma_2_pos_1_star_y * theta_2_pos_1_x_y_c_c +
+              gamma_2_pos_2_star_y * theta_2_pos_2_x_y_c_c +
+              gamma_3_neg_3_star_y * theta_3_neg_3_x_y_c_c +
+              gamma_3_neg_2_star_y * theta_3_neg_2_x_y_c_c +
+              gamma_3_neg_1_star_y * theta_3_neg_1_x_y_c_c +
+              gamma_3_pos_0_star_y * theta_3_pos_0_x_y_c_c +
+              gamma_3_pos_1_star_y * theta_3_pos_1_x_y_c_c +
+              gamma_3_pos_2_star_y * theta_3_pos_2_x_y_c_c +
+              gamma_3_pos_3_star_y * theta_3_pos_3_x_y_c_c);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************** */
+/* Step 1: Near-field series with center y_c^{(p)} ***************** */
+/* **************************************************************** */
+/* for far-field center at parent source cell center - center_xBoxParent */
+y_0_differenceParent_e : expand(e_y_0 - e_center_yBoxParent);
+y_0_differenceParent_n : expand(n_y_0 - n_center_yBoxParent);
+y_0_differenceParent_z : expand(z_y_0 - z_center_yBoxParent);
+x_0_differenceParent_e : expand(e_x_0 - e_center_yBoxParent);
+x_0_differenceParent_n : expand(n_x_0 - n_center_yBoxParent);
+x_0_differenceParent_z : expand(z_x_0 - z_center_yBoxParent);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* far-field coefficients */
+/* gamma_n^{(m)*}(y_c^{(p)} - y) */
+gamma_0_pos_0_star_yParent : expand(((-1.0)^0)*gamma_0_pos_0(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_1_neg_1_star_yParent : expand(((-1.0)^1)*gamma_1_pos_1(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_2_neg_2_star_yParent : expand(((-1.0)^2)*gamma_2_pos_2(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_3_neg_3_star_yParent : expand(((-1.0)^3)*gamma_3_pos_3(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_1_pos_1_star_yParent : expand(((-1.0)^1)*gamma_1_neg_1(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_1_pos_0_star_yParent : expand(((-1.0)^0)*gamma_1_pos_0(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_2_neg_1_star_yParent : expand(((-1.0)^1)*gamma_2_pos_1(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_3_neg_2_star_yParent : expand(((-1.0)^2)*gamma_3_pos_2(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_2_pos_2_star_yParent : expand(((-1.0)^2)*gamma_2_neg_2(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_2_pos_1_star_yParent : expand(((-1.0)^1)*gamma_2_neg_1(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_2_pos_0_star_yParent : expand(((-1.0)^0)*gamma_2_pos_0(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_3_neg_1_star_yParent : expand(((-1.0)^1)*gamma_3_pos_1(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_3_pos_3_star_yParent : expand(((-1.0)^3)*gamma_3_neg_3(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_3_pos_2_star_yParent : expand(((-1.0)^2)*gamma_3_neg_2(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_3_pos_1_star_yParent : expand(((-1.0)^1)*gamma_3_neg_1(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+gamma_3_pos_0_star_yParent : expand(((-1.0)^0)*gamma_3_pos_0(-y_0_differenceParent_e,-y_0_differenceParent_n,-y_0_differenceParent_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* theta_n^{(m)} (y_c^{(p)} - x) */
+theta_0_pos_0_x_y_c_p : expand(theta_0_pos_0(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_1_neg_1_x_y_c_p : expand(theta_1_neg_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_2_neg_2_x_y_c_p : expand(theta_2_neg_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_3_neg_3_x_y_c_p : expand(theta_3_neg_3(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_1_pos_1_x_y_c_p : expand(theta_1_pos_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_1_pos_0_x_y_c_p : expand(theta_1_pos_0(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_2_neg_1_x_y_c_p : expand(theta_2_neg_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_3_neg_2_x_y_c_p : expand(theta_3_neg_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_2_pos_2_x_y_c_p : expand(theta_2_pos_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_2_pos_1_x_y_c_p : expand(theta_2_pos_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_2_pos_0_x_y_c_p : expand(theta_2_pos_0(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_3_neg_1_x_y_c_p : expand(theta_3_neg_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_3_pos_3_x_y_c_p : expand(theta_3_pos_3(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_3_pos_2_x_y_c_p : expand(theta_3_pos_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_3_pos_1_x_y_c_p : expand(theta_3_pos_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_3_pos_0_x_y_c_p : expand(theta_3_pos_0(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_4_neg_4_x_y_c_p : expand(theta_4_neg_4(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_4_neg_3_x_y_c_p : expand(theta_4_neg_3(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_4_neg_2_x_y_c_p : expand(theta_4_neg_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_4_neg_1_x_y_c_p : expand(theta_4_neg_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_4_pos_0_x_y_c_p : expand(theta_4_pos_0(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_4_pos_1_x_y_c_p : expand(theta_4_pos_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_4_pos_2_x_y_c_p : expand(theta_4_pos_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_4_pos_3_x_y_c_p : expand(theta_4_pos_3(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_4_pos_4_x_y_c_p : expand(theta_4_pos_4(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_neg_5_x_y_c_p : expand(theta_5_neg_5(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_neg_4_x_y_c_p : expand(theta_5_neg_4(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_neg_3_x_y_c_p : expand(theta_5_neg_3(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_neg_2_x_y_c_p : expand(theta_5_neg_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_neg_1_x_y_c_p : expand(theta_5_neg_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_pos_0_x_y_c_p : expand(theta_5_pos_0(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_pos_1_x_y_c_p : expand(theta_5_pos_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_pos_2_x_y_c_p : expand(theta_5_pos_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_pos_3_x_y_c_p : expand(theta_5_pos_3(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_pos_4_x_y_c_p : expand(theta_5_pos_4(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_5_pos_5_x_y_c_p : expand(theta_5_pos_5(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_neg_6_x_y_c_p : expand(theta_6_neg_6(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_neg_5_x_y_c_p : expand(theta_6_neg_5(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_neg_4_x_y_c_p : expand(theta_6_neg_4(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_neg_3_x_y_c_p : expand(theta_6_neg_3(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_neg_2_x_y_c_p : expand(theta_6_neg_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_neg_1_x_y_c_p : expand(theta_6_neg_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_pos_0_x_y_c_p : expand(theta_6_pos_0(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_pos_1_x_y_c_p : expand(theta_6_pos_1(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_pos_2_x_y_c_p : expand(theta_6_pos_2(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_pos_3_x_y_c_p : expand(theta_6_pos_3(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_pos_4_x_y_c_p : expand(theta_6_pos_4(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_pos_5_x_y_c_p : expand(theta_6_pos_5(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+theta_6_pos_6_x_y_c_p : expand(theta_6_pos_6(-x_0_differenceParent_e,-x_0_differenceParent_n,-x_0_differenceParent_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* far-field expansion about y_c^{(p)}  */
+s_expansion : expand(
+              gamma_0_pos_0_star_yParent * theta_0_pos_0_x_y_c_p + 
+              gamma_1_neg_1_star_yParent * theta_1_neg_1_x_y_c_p +
+              gamma_1_pos_0_star_yParent * theta_1_pos_0_x_y_c_p +
+              gamma_1_pos_1_star_yParent * theta_1_pos_1_x_y_c_p +
+              gamma_2_neg_2_star_yParent * theta_2_neg_2_x_y_c_p +
+              gamma_2_neg_1_star_yParent * theta_2_neg_1_x_y_c_p +
+              gamma_2_pos_0_star_yParent * theta_2_pos_0_x_y_c_p +
+              gamma_2_pos_1_star_yParent * theta_2_pos_1_x_y_c_p +
+              gamma_2_pos_2_star_yParent * theta_2_pos_2_x_y_c_p +
+              gamma_3_neg_3_star_yParent * theta_3_neg_3_x_y_c_p +
+              gamma_3_neg_2_star_yParent * theta_3_neg_2_x_y_c_p +
+              gamma_3_neg_1_star_yParent * theta_3_neg_1_x_y_c_p +
+              gamma_3_pos_0_star_yParent * theta_3_pos_0_x_y_c_p +
+              gamma_3_pos_1_star_yParent * theta_3_pos_1_x_y_c_p +
+              gamma_3_pos_2_star_yParent * theta_3_pos_2_x_y_c_p +
+              gamma_3_pos_3_star_yParent * theta_3_pos_3_x_y_c_p);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* ***************************************************************** */
+/* Step 1: RR transform of Near-field series with center y_c^{(p)} * */
+/*         to Near field series with center y_c^{(c)} ************** */
+/*         The formula for the transformation is ******************* */
+/*      \theta_n^{m} (z_B^{(c)} - x_a) = \theta_n^{m} (z_B^{(c)} - z_B^{(p)} + z_B^{(p)} - x_a)                                                           */
+/*      = \sum_{k=0}^{order_of_approximation - n}                                                                                                         */
+/*                                          \sum_{l=-k}^{k} (-1)^n \gamma_{k}^{(l)*} (-(z_B^{(c)} - z_B^{(p)}))  theta_{n+k}^{m+l} (z_B^{(p)} - x_a)      */
+/*      = \sum_{k=0}^{order_of_approximation - n}                                                                                                         */
+/*                                          \sum_{l=-k}^{k} (-1)^n \gamma_{k}^{(l)*} (z_B^{(p)} - z_B^{(c)})  theta_{n+k}^{m+l} (z_B^{(p)} - x_a)         */
+
+/* **************************************************************** */
+/* for far-field center at parent source cell center - center_xBoxParent */
+y_0_differenceCenter_e : expand(e_center_yBoxParent - e_center_yBox);
+y_0_differenceCenter_n : expand(n_center_yBoxParent - n_center_yBox);
+y_0_differenceCenter_z : expand(z_center_yBoxParent - z_center_yBox);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************************************** */
+/* Transformation Matrix Vector to Operate on Near-field Coefficients centered at y_c^{(p)} */
+/* **************************************************************************************** */
+/* gamma_n^{(m)*} (y_c^{(p)}-y_c^{(c)}) = gamma_n^{(m)*} (-(y_c^{(c)}-y_c^{(p)})) = gamma_neg_y_matrix */
+gamma_0_pos_0_star_diff_centers : expand(((-1.0)^0)*gamma_0_pos_0(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_1_neg_1_star_diff_centers : expand(((-1.0)^1)*gamma_1_pos_1(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_2_neg_2_star_diff_centers : expand(((-1.0)^2)*gamma_2_pos_2(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_3_neg_3_star_diff_centers : expand(((-1.0)^3)*gamma_3_pos_3(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_1_pos_1_star_diff_centers : expand(((-1.0)^1)*gamma_1_neg_1(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_1_pos_0_star_diff_centers : expand(((-1.0)^0)*gamma_1_pos_0(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_2_neg_1_star_diff_centers : expand(((-1.0)^1)*gamma_2_pos_1(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_3_neg_2_star_diff_centers : expand(((-1.0)^2)*gamma_3_pos_2(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_2_pos_2_star_diff_centers : expand(((-1.0)^2)*gamma_2_neg_2(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_2_pos_1_star_diff_centers : expand(((-1.0)^1)*gamma_2_neg_1(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_2_pos_0_star_diff_centers : expand(((-1.0)^0)*gamma_2_pos_0(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_3_neg_1_star_diff_centers : expand(((-1.0)^1)*gamma_3_pos_1(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_3_pos_3_star_diff_centers : expand(((-1.0)^3)*gamma_3_neg_3(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_3_pos_2_star_diff_centers : expand(((-1.0)^2)*gamma_3_neg_2(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_3_pos_1_star_diff_centers : expand(((-1.0)^1)*gamma_3_neg_1(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+gamma_3_pos_0_star_diff_centers : expand(((-1.0)^0)*gamma_3_pos_0(y_0_differenceCenter_e,y_0_differenceCenter_n,y_0_differenceCenter_z));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+
+/* [wxMaxima: input   start ] */
+/* **************************************************************** */
+/* Calculating shifted theta coefficients ************************* */
+/* **************************************************************** */
+gamma_0_pos_0_star_diff_centers;
+gamma_1_neg_1_star_diff_centers;
+gamma_1_pos_0_star_diff_centers;
+gamma_1_pos_1_star_diff_centers;
+gamma_2_neg_2_star_diff_centers;
+gamma_2_neg_1_star_diff_centers;
+gamma_2_pos_0_star_diff_centers;
+gamma_2_pos_1_star_diff_centers;
+gamma_2_pos_2_star_diff_centers;
+gamma_3_neg_3_star_diff_centers;
+gamma_3_neg_2_star_diff_centers;
+gamma_3_neg_1_star_diff_centers;
+gamma_3_pos_0_star_diff_centers;
+gamma_3_pos_1_star_diff_centers;
+gamma_3_pos_2_star_diff_centers;
+gamma_3_pos_3_star_diff_centers;
+/* [wxMaxima: input   end   ] */
+/* [wxMaxima: input   start ] */
+theta_0_pos_0_x_y_c_p;
+theta_1_neg_1_x_y_c_p;
+theta_2_neg_2_x_y_c_p;
+theta_3_neg_3_x_y_c_p;
+theta_1_pos_1_x_y_c_p;
+theta_1_pos_0_x_y_c_p;
+theta_2_neg_1_x_y_c_p;
+theta_3_neg_2_x_y_c_p;
+theta_2_pos_2_x_y_c_p;
+theta_2_pos_1_x_y_c_p;
+theta_2_pos_0_x_y_c_p;
+theta_3_neg_1_x_y_c_p;
+theta_3_pos_3_x_y_c_p;
+theta_3_pos_2_x_y_c_p;
+theta_3_pos_1_x_y_c_p;
+theta_3_pos_0_x_y_c_p;
+/* [wxMaxima: input   end   ] */
+/* [wxMaxima: input   start ] */
+expand(gamma_0_pos_0_star_diff_centers * theta_0_pos_0_x_y_c_p);
+expand(gamma_1_neg_1_star_diff_centers * theta_1_neg_1_x_y_c_p);
+expand(gamma_1_pos_0_star_diff_centers * theta_1_pos_0_x_y_c_p); 
+expand(gamma_1_pos_1_star_diff_centers * theta_1_pos_1_x_y_c_p);
+expand(gamma_2_neg_2_star_diff_centers * theta_2_neg_2_x_y_c_p);
+expand(gamma_2_neg_1_star_diff_centers * theta_2_neg_1_x_y_c_p);
+expand(gamma_2_pos_0_star_diff_centers * theta_2_pos_0_x_y_c_p);
+expand(gamma_2_pos_1_star_diff_centers * theta_2_pos_1_x_y_c_p);
+expand(gamma_2_pos_2_star_diff_centers * theta_2_pos_2_x_y_c_p); 
+expand(gamma_3_neg_3_star_diff_centers * theta_3_neg_3_x_y_c_p);
+expand(gamma_3_neg_2_star_diff_centers * theta_3_neg_2_x_y_c_p);
+expand(gamma_3_neg_1_star_diff_centers * theta_3_neg_1_x_y_c_p);
+expand(gamma_3_pos_0_star_diff_centers * theta_3_pos_0_x_y_c_p);
+expand(gamma_3_pos_1_star_diff_centers * theta_3_pos_1_x_y_c_p);
+expand(gamma_3_pos_2_star_diff_centers * theta_3_pos_2_x_y_c_p); 
+expand(gamma_3_pos_3_star_diff_centers * theta_3_pos_3_x_y_c_p); 
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+theta_0_pos_0_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_0_pos_0_x_y_c_p +
+                              gamma_1_neg_1_star_diff_centers * theta_1_neg_1_x_y_c_p +
+                              gamma_1_pos_0_star_diff_centers * theta_1_pos_0_x_y_c_p + 
+                              gamma_1_pos_1_star_diff_centers * theta_1_pos_1_x_y_c_p +
+                              gamma_2_neg_2_star_diff_centers * theta_2_neg_2_x_y_c_p +
+                              gamma_2_neg_1_star_diff_centers * theta_2_neg_1_x_y_c_p +
+                              gamma_2_pos_0_star_diff_centers * theta_2_pos_0_x_y_c_p +
+                              gamma_2_pos_1_star_diff_centers * theta_2_pos_1_x_y_c_p +
+                              gamma_2_pos_2_star_diff_centers * theta_2_pos_2_x_y_c_p + 
+                              gamma_3_neg_3_star_diff_centers * theta_3_neg_3_x_y_c_p +
+                              gamma_3_neg_2_star_diff_centers * theta_3_neg_2_x_y_c_p +
+                              gamma_3_neg_1_star_diff_centers * theta_3_neg_1_x_y_c_p +
+                              gamma_3_pos_0_star_diff_centers * theta_3_pos_0_x_y_c_p +
+                              gamma_3_pos_1_star_diff_centers * theta_3_pos_1_x_y_c_p +
+                              gamma_3_pos_2_star_diff_centers * theta_3_pos_2_x_y_c_p + 
+                              gamma_3_pos_3_star_diff_centers * theta_3_pos_3_x_y_c_p); 
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+theta_1_neg_1_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_1_neg_1_x_y_c_p +
+                              gamma_1_neg_1_star_diff_centers * theta_2_neg_2_x_y_c_p +
+                              gamma_1_pos_0_star_diff_centers * theta_2_neg_1_x_y_c_p + 
+                              gamma_1_pos_1_star_diff_centers * theta_2_pos_0_x_y_c_p +
+                              gamma_2_neg_2_star_diff_centers * theta_3_neg_3_x_y_c_p +
+                              gamma_2_neg_1_star_diff_centers * theta_3_neg_2_x_y_c_p +
+                              gamma_2_pos_0_star_diff_centers * theta_3_neg_1_x_y_c_p +
+                              gamma_2_pos_1_star_diff_centers * theta_3_pos_0_x_y_c_p +
+                              gamma_2_pos_2_star_diff_centers * theta_3_pos_1_x_y_c_p); 
+
+theta_2_neg_2_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_2_neg_2_x_y_c_p +
+                              gamma_1_neg_1_star_diff_centers * theta_3_neg_3_x_y_c_p +
+                              gamma_1_pos_0_star_diff_centers * theta_3_neg_2_x_y_c_p + 
+                              gamma_1_pos_1_star_diff_centers * theta_3_neg_1_x_y_c_p); 
+
+theta_3_neg_3_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_3_neg_3_x_y_c_p); 
+
+theta_1_pos_1_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_1_pos_1_x_y_c_p +
+                              gamma_1_neg_1_star_diff_centers * theta_2_pos_0_x_y_c_p +
+                              gamma_1_pos_0_star_diff_centers * theta_2_pos_1_x_y_c_p + 
+                              gamma_1_pos_1_star_diff_centers * theta_2_pos_2_x_y_c_p +
+                              gamma_2_neg_2_star_diff_centers * theta_3_neg_1_x_y_c_p +
+                              gamma_2_neg_1_star_diff_centers * theta_3_pos_0_x_y_c_p +
+                              gamma_2_pos_0_star_diff_centers * theta_3_pos_1_x_y_c_p +
+                              gamma_2_pos_1_star_diff_centers * theta_3_pos_2_x_y_c_p +
+                              gamma_2_pos_2_star_diff_centers * theta_3_pos_3_x_y_c_p); 
+
+theta_1_pos_0_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_1_pos_0_x_y_c_p +
+                              gamma_1_neg_1_star_diff_centers * theta_2_neg_1_x_y_c_p +
+                              gamma_1_pos_0_star_diff_centers * theta_2_pos_0_x_y_c_p + 
+                              gamma_1_pos_1_star_diff_centers * theta_2_pos_1_x_y_c_p +
+                              gamma_2_neg_2_star_diff_centers * theta_3_neg_2_x_y_c_p +
+                              gamma_2_neg_1_star_diff_centers * theta_3_neg_1_x_y_c_p +
+                              gamma_2_pos_0_star_diff_centers * theta_3_pos_0_x_y_c_p +
+                              gamma_2_pos_1_star_diff_centers * theta_3_pos_1_x_y_c_p +
+                              gamma_2_pos_2_star_diff_centers * theta_3_pos_2_x_y_c_p); 
+
+theta_2_neg_1_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_2_neg_1_x_y_c_p +
+                              gamma_1_neg_1_star_diff_centers * theta_3_neg_2_x_y_c_p +
+                              gamma_1_pos_0_star_diff_centers * theta_3_neg_1_x_y_c_p + 
+                              gamma_1_pos_1_star_diff_centers * theta_3_pos_0_x_y_c_p); 
+
+theta_3_neg_2_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_3_neg_2_x_y_c_p); 
+
+theta_2_pos_2_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_2_pos_2_x_y_c_p +
+                              gamma_1_neg_1_star_diff_centers * theta_3_pos_1_x_y_c_p +
+                              gamma_1_pos_0_star_diff_centers * theta_3_pos_2_x_y_c_p + 
+                              gamma_1_pos_1_star_diff_centers * theta_3_pos_3_x_y_c_p); 
+
+theta_2_pos_1_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_2_pos_1_x_y_c_p +
+                              gamma_1_neg_1_star_diff_centers * theta_3_pos_0_x_y_c_p +
+                              gamma_1_pos_0_star_diff_centers * theta_3_pos_1_x_y_c_p + 
+                              gamma_1_pos_1_star_diff_centers * theta_3_pos_2_x_y_c_p); 
+
+theta_2_pos_0_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_2_pos_0_x_y_c_p +
+                              gamma_1_neg_1_star_diff_centers * theta_3_neg_1_x_y_c_p +
+                              gamma_1_pos_0_star_diff_centers * theta_3_pos_0_x_y_c_p + 
+                              gamma_1_pos_1_star_diff_centers * theta_3_pos_1_x_y_c_p); 
+
+theta_3_neg_1_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_3_neg_1_x_y_c_p); 
+
+theta_3_pos_3_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_3_pos_3_x_y_c_p); 
+
+theta_3_pos_2_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_3_pos_2_x_y_c_p); 
+
+theta_3_pos_1_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_3_pos_1_x_y_c_p); 
+
+theta_3_pos_0_x_plus_y : expand(
+                              gamma_0_pos_0_star_diff_centers * theta_3_pos_0_x_y_c_p); 
+
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* ****************************************************************** */
+/* Step 1: Calculating the shifted r-expansion centered at y_c^{(c)}  */
+/* ****************************************************************** */
+s_expansion : expand(
+              gamma_0_pos_0_star_y * theta_0_pos_0_x_plus_y + 
+              gamma_1_neg_1_star_y * theta_1_neg_1_x_plus_y +
+              gamma_1_pos_0_star_y * theta_1_pos_0_x_plus_y +
+              gamma_1_pos_1_star_y * theta_1_pos_1_x_plus_y +
+              gamma_2_neg_2_star_y * theta_2_neg_2_x_plus_y +
+              gamma_2_neg_1_star_y * theta_2_neg_1_x_plus_y +
+              gamma_2_pos_0_star_y * theta_2_pos_0_x_plus_y +
+              gamma_2_pos_1_star_y * theta_2_pos_1_x_plus_y +
+              gamma_2_pos_2_star_y * theta_2_pos_2_x_plus_y +
+              gamma_3_neg_3_star_y * theta_3_neg_3_x_plus_y +
+              gamma_3_neg_2_star_y * theta_3_neg_2_x_plus_y +
+              gamma_3_neg_1_star_y * theta_3_neg_1_x_plus_y +
+              gamma_3_pos_0_star_y * theta_3_pos_0_x_plus_y +
+              gamma_3_pos_1_star_y * theta_3_pos_1_x_plus_y +
+              gamma_3_pos_2_star_y * theta_3_pos_2_x_plus_y +
+              gamma_3_pos_3_star_y * theta_3_pos_3_x_plus_y);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
